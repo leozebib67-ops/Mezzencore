@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mezzencore</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#B8902A;--gold2:#C9A84C;--gold-dim:rgba(184,144,42,0.1);--bg:#F7F5F0;--bg2:#FFFFFF;--bg3:#F0EDE6;--bg4:#E8E4DA;--border:rgba(184,144,42,0.2);--border2:rgba(184,144,42,0.4);--text:#1A1612;--muted:#8A7F6A;--green:#3A8A56;--red:#A03A3A;--blue:#3A60A0}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+#auth{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F7F5F0 0%,#EDE8DC 100%)}
+.acard{background:#fff;border:1px solid var(--border);border-radius:24px;padding:48px 40px;width:420px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,0.08);animation:up .6s ease both}
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.abrand-name{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--gold);letter-spacing:3px;text-transform:uppercase;text-align:center}
+.abrand-sub{font-size:.72rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase;text-align:center;margin-top:4px;margin-bottom:32px}
+.atabs{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:24px}
+.atab{flex:1;padding:10px;border:none;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;border-radius:9px;transition:all .25s}
+.atab.on{background:var(--gold);color:#fff;font-weight:700}
+.f{margin-bottom:14px}
+.f label{display:block;font-size:.68rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.f input{width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.92rem;outline:none;transition:border-color .2s}
+.f input:focus{border-color:var(--gold)}
+.epref{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start}
+.epref-txt{font-size:.8rem;color:var(--muted);line-height:1.5}
+.epref-txt strong{color:var(--gold)}
+.trow{display:flex;align-items:center;justify-content:space-between;margin-top:7px}
+.tog{position:relative;width:40px;height:22px}
+.tog input{opacity:0;width:0;height:0}
+.tslider{position:absolute;inset:0;background:var(--bg4);border:1px solid var(--border2);border-radius:22px;cursor:pointer;transition:background .2s}
+.tslider::before{content:'';position:absolute;width:14px;height:14px;background:var(--muted);border-radius:50%;left:3px;top:3px;transition:all .2s}
+.tog input:checked+.tslider{background:rgba(184,144,42,.2);border-color:var(--gold)}
+.tog input:checked+.tslider::before{background:var(--gold);transform:translateX(18px)}
+.btn-auth{width:100%;padding:14px;background:var(--gold);border:none;border-radius:10px;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(184,144,42,0.3)}
+.btn-auth:hover{background:var(--gold2);transform:translateY(-1px)}
+#app{display:none}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:stretch;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.t-brand{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center}
+.t-kpis{display:flex;align-items:center;flex:1;justify-content:center}
+.kpi{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 16px;border-left:1px solid var(--border);height:100%}
+.kpi:last-of-type{border-right:1px solid var(--border)}
+.kpi-n{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;line-height:1}
+.kpi-l{font-size:.58rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:2px}
+.kpi-tot .kpi-n{color:var(--text)}.kpi-pos .kpi-n{color:var(--green)}.kpi-neg .kpi-n{color:var(--red)}.kpi-bon .kpi-n{color:var(--gold)}
+.t-right{display:flex;align-items:center;gap:8px}
+.npill{padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.78rem;cursor:pointer;transition:all .2s}
+.npill.on,.npill:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.uchip{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted)}
+.udot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.page{display:none;max-width:1100px;margin:0 auto;padding:28px 20px}
+.page.on{display:block;animation:up .3s ease}
+.rlayout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+@media(max-width:800px){.rlayout{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:0 2px 16px rgba(0,0,0,0.05)}
+.ptitle{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--gold);margin-bottom:3px}
+.psub{font-size:.74rem;color:var(--muted);margin-bottom:18px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ifield label{display:block;font-size:.66rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.ifield select,.ifield input[type=number]{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.86rem;outline:none;transition:border-color .2s;appearance:none}
+.ifield select:focus,.ifield input:focus{border-color:var(--gold)}
+select option{background:#fff}
+.ifield-f{margin-bottom:12px}
+.ifield-f label{display:block;font-size:.66rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+textarea{width:100%;height:140px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.87rem;line-height:1.65;padding:12px 14px;outline:none;resize:vertical;transition:border-color .2s}
+textarea:focus{border-color:var(--gold)}
+textarea::placeholder{color:var(--muted)}
+.btn-gen{width:100%;padding:13px;margin-top:14px;background:linear-gradient(135deg,var(--gold) 0%,#8a6820 100%);border:none;border-radius:10px;color:#fff;font-family:'Outfit',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(184,144,42,0.3)}
+.btn-gen:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(184,144,42,.35)}
+.btn-gen:disabled{opacity:.4;cursor:not-allowed}
+.dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:#fff;margin:0 2px;animation:db 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes db{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+.rempty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:10px;color:var(--muted);font-size:.85rem}
+.rempty-icon{font-family:'Cormorant Garamond',serif;font-size:3.5rem;color:rgba(184,144,42,.2);line-height:1}
+.rcontent{display:none}
+.rcontent.show{display:block;animation:up .35s ease}
+.rheader{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.badge{padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:600;letter-spacing:.5px}
+.bpos{background:rgba(58,138,86,.12);color:var(--green);border:1px solid rgba(58,138,86,.25)}
+.bneg{background:rgba(160,58,58,.12);color:var(--red);border:1px solid rgba(160,58,58,.25)}
+.bmix{background:rgba(184,144,42,.12);color:var(--gold);border:1px solid var(--border)}
+.rtext{font-size:.88rem;line-height:1.8;color:var(--text);white-space:pre-wrap;padding:14px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);margin-bottom:12px}
+.prodsec{margin-bottom:12px}
+.prodsec-t{font-size:.66rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px}
+.pchips{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{padding:5px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;font-size:.76rem;color:var(--text)}
+.vsec{background:linear-gradient(135deg,rgba(184,144,42,.06),rgba(184,144,42,.02));border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:12px}
+.vsec-t{font-size:.66rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:9px}
+.vopts{display:flex;gap:7px;flex-wrap:wrap}
+.vbtn{padding:7px 14px;border:1px solid var(--border2);border-radius:8px;background:#fff;color:var(--text);font-family:'Outfit',sans-serif;font-size:.8rem;cursor:pointer;transition:all .2s}
+.vbtn:hover,.vbtn.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+.vdisp{margin-top:10px;font-size:.8rem;color:var(--muted);display:none}
+.vdisp.show{display:block}
+.vcode{display:inline-block;background:#fff;border:1px dashed var(--gold);border-radius:6px;padding:3px 10px;color:var(--gold);font-weight:700;letter-spacing:2px;font-size:.86rem;margin-left:6px}
+.arow{display:flex;gap:8px}
+.abtn{flex:1;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--muted);font-family:'Outfit',sans-serif;font-size:.78rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.abtn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.dkpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:900px){.dkpis{grid-template-columns:repeat(3,1fr)}}
+.dkpi{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 14px;box-shadow:0 2px 10px rgba(0,0,0,0.04)}
+.dkpi-n{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;line-height:1}
+.dkpi-l{font-size:.66rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.7px}
+.dk-tot .dkpi-n{color:var(--text)}.dk-pos .dkpi-n{color:var(--green)}.dk-neg .dkpi-n{color:var(--red)}.dk-bon .dkpi-n{color:var(--gold)}.dk-val .dkpi-n{color:var(--gold2)}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.dgrid{grid-template-columns:1fr}}
+.dpanel{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,0.04)}
+.dpanel-t{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--gold);margin-bottom:3px}
+.dpanel-s{font-size:.72rem;color:var(--muted);margin-bottom:14px}
+.di{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bg4);font-size:.83rem}
+.di:last-child{border-bottom:none}
+.tp{background:rgba(58,138,86,.1);color:var(--green);padding:2px 8px;border-radius:8px;font-size:.7rem;font-weight:600}
+.tn{background:rgba(160,58,58,.1);color:var(--red);padding:2px 8px;border-radius:8px;font-size:.7rem;font-weight:600}
+.tg{background:rgba(184,144,42,.1);color:var(--gold);padding:2px 8px;border-radius:8px;font-size:.7rem;font-weight:600}
+.edash{text-align:center;color:var(--muted);padding:28px 0;font-size:.82rem}
+.brow{margin-bottom:10px}
+.blabel{display:flex;justify-content:space-between;font-size:.8rem;color:var(--text);margin-bottom:4px}
+.btrack{height:6px;background:var(--bg4);border-radius:5px;overflow:hidden}
+.bfill{height:100%;background:var(--gold);border-radius:5px;transition:width .5s ease}
+.bfill.bl{background:var(--blue)}
+.hitem{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:7px}
+.hmeta{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:4px;font-size:.72rem;color:var(--muted)}
+.hexc{font-size:.81rem;color:var(--text);line-height:1.5}
+.btn-mail{display:flex;align-items:center;gap:8px;padding:11px 20px;background:rgba(58,96,160,.08);border:1px solid rgba(58,96,160,.25);border-radius:10px;color:var(--blue);font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;margin-top:14px}
+.btn-mail:hover{background:rgba(58,96,160,.15);transform:translateY(-1px)}
+.toast{position:fixed;bottom:20px;right:20px;background:#fff;border:1px solid var(--border2);border-radius:12px;padding:12px 18px;font-size:.83rem;display:flex;align-items:center;gap:9px;transform:translateY(70px);opacity:0;transition:all .3s;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,0.12);color:var(--text)}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<div id="auth">
+<div class="acard">
+  <div class="abrand-name">✦ Mezzencore</div>
+  <div class="abrand-sub">Gestion intelligente des avis</div>
+  <div class="atabs">
+    <button class="atab on" onclick="atab('login')">Connexion</button>
+    <button class="atab" onclick="atab('signup')">Inscription</button>
+  </div>
+  <div id="fl">
+    <div class="f"><label>Email</label><input id="le" type="email" placeholder="vous@email.com"/></div>
+    <div class="f"><label>Mot de passe</label><input id="lp" type="password" placeholder="••••••••"/></div>
+    <div class="epref">
+      <div style="font-size:1.3rem;margin-top:2px">📬</div>
+      <div class="epref-txt">Recevoir un rapport <strong>chaque lundi à 10h</strong> par email ?
+        <div class="trow"><span style="font-size:.72rem">Avis · Positifs/Négatifs · Bons donnés</span>
+        <label class="tog"><input type="checkbox" id="lw" checked/><span class="tslider"></span></label></div>
+      </div>
+    </div>
+    <button class="btn-auth" onclick="login()">Se connecter</button>
+  </div>
+  <div id="fs" style="display:none">
+    <div class="f"><label>Prénom & Nom</label><input id="sn" type="text" placeholder="Jean Dupont"/></div>
+    <div class="f"><label>Email</label><input id="se" type="email" placeholder="vous@email.com"/></div>
+    <div class="f"><label>Mot de passe</label><input id="sp" type="password" placeholder="••••••••"/></div>
+    <div class="epref">
+      <div style="font-size:1.3rem;margin-top:2px">📬</div>
+      <div class="epref-txt">Recevoir un rapport <strong>chaque lundi à 10h</strong> par email ?
+        <div class="trow"><span style="font-size:.72rem">Avis · Positifs/Négatifs · Bons donnés</span>
+        <label class="tog"><input type="checkbox" id="sw" checked/><span class="tslider"></span></label></div>
+      </div>
+    </div>
+    <button class="btn-auth" onclick="signup()">Créer mon compte</button>
+  </div>
+</div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="t-brand">✦ Mezzencore</div>
+    <div class="t-kpis">
+      <div class="kpi kpi-tot"><div class="kpi-n" id="kt">0</div><div class="kpi-l">Total</div></div>
+      <div class="kpi kpi-pos"><div class="kpi-n" id="kp">0</div><div class="kpi-l">Positifs</div></div>
+      <div class="kpi kpi-neg"><div class="kpi-n" id="kn">0</div><div class="kpi-l">Négatifs</div></div>
+      <div class="kpi kpi-bon"><div class="kpi-n" id="kb">0</div><div class="kpi-l">Bons donnés</div></div>
+    </div>
+    <div class="t-right">
+      <button class="npill on" onclick="gp('review',this)">✍️ Répondre</button>
+      <button class="npill" onclick="gp('dash',this)">📊 Dashboard</button>
+      <div class="uchip"><div class="udot"></div><span id="un">—</span></div>
+    </div>
+  </div>
+
+  <div class="page on" id="page-review">
+    <div class="rlayout">
+      <div class="panel">
+        <div class="ptitle">Traiter un avis</div>
+        <div class="psub">Collez l'avis et renseignez les infos</div>
+        <div class="frow">
+          <div class="ifield"><label>Langue de réponse</label>
+            <select id="rl"><option value="fr">🇫🇷 Français</option><option value="en">🇬🇧 English</option><option value="ar">🇸🇦 Arabe</option><option value="es">🇪🇸 Español</option><option value="it">🇮🇹 Italiano</option><option value="de">🇩🇪 Deutsch</option><option value="zh">🇨🇳 Chinois</option><option value="ja">🇯🇵 Japonais</option></select>
+          </div>
+          <div class="ifield"><label>Nb de commandes</label><input id="ro" type="number" min="0" placeholder="ex: 4"/></div>
+        </div>
+        <div class="ifield-f"><label>Restaurant</label>
+          <select id="rr"><option value="montmartre">📍 Montmartre</option><option value="demours">📍 Demours</option></select>
+        </div>
+        <div class="ifield-f"><label>Avis client</label>
+          <textarea id="rv" placeholder="Collez ici l'avis Google, TripAdvisor, Deliveroo…"></textarea>
+        </div>
+        <button class="btn-gen" id="bgn" onclick="gen()">
+          <span id="gtxt">✨ Générer la réponse</span>
+          <span id="gload" style="display:none" class="dots"><span></span><span></span><span></span></span>
+        </button>
+      </div>
+
+      <div class="panel">
+        <div class="ptitle">Réponse IA</div>
+        <div class="psub">Personnalisée selon le restaurant et le client</div>
+        <div class="rempty" id="re"><div class="rempty-icon">✦</div><div>La réponse apparaîtra ici</div></div>
+        <div class="rcontent" id="rc">
+          <div class="rheader"><span class="ptitle" style="font-size:1rem">Réponse prête</span><span class="badge" id="rbadge"></span></div>
+          <div class="rtext" id="rtext"></div>
+          <div class="prodsec"><div class="prodsec-t">🍽️ Produits à mettre en avant</div><div class="pchips" id="pchips"></div></div>
+          <div class="vsec">
+            <div class="vsec-t">🎟️ Offrir un bon de réduction ?</div>
+            <div class="vopts">
+              <button class="vbtn" onclick="pickV(this,1.5)">1,50 €</button>
+              <button class="vbtn" onclick="pickV(this,2.5)">2,50 €</button>
+              <button class="vbtn" onclick="pickV(this,5)">5,00 €</button>
+              <button class="vbtn" onclick="pickV(this,0)">Aucun</button>
+            </div>
+            <div class="vdisp" id="vdisp">Bon de <strong id="vamt"></strong> — Code : <span class="vcode" id="vcode"></span></div>
+          </div>
+          <div class="arow">
+            <button class="abtn" onclick="copyR()">📋 Copier</button>
+            <button class="abtn" onclick="dlR()">⬇️ Télécharger</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-dash">
+    <div class="dkpis">
+      <div class="dkpi dk-tot"><div class="dkpi-n" id="dt">0</div><div class="dkpi-l">Avis traités</div></div>
+      <div class="dkpi dk-pos"><div class="dkpi-n" id="dp">0</div><div class="dkpi-l">Positifs</div></div>
+      <div class="dkpi dk-neg"><div class="dkpi-n" id="dn">0</div><div class="dkpi-l">Négatifs</div></div>
+      <div class="dkpi dk-bon"><div class="dkpi-n" id="db2">0</div><div class="dkpi-l">Bons donnés</div></div>
+      <div class="dkpi dk-val"><div class="dkpi-n" id="dv">0 €</div><div class="dkpi-l">Valeur bons</div></div>
+    </div>
+    <div class="dgrid">
+      <div class="dpanel"><div class="dpanel-t">🏆 Produits appréciés</div><div class="dpanel-s">Cités dans les avis positifs</div><div id="d-pp"><div class="edash">Aucun avis traité</div></div></div>
+      <div class="dpanel"><div class="dpanel-t">⚠️ Produits critiqués</div><div class="dpanel-s">Cités dans les avis négatifs</div><div id="d-pn"><div class="edash">Aucun avis traité</div></div></div>
+      <div class="dpanel"><div class="dpanel-t">📍 Par restaurant</div><div class="dpanel-s">Volume par adresse</div><div id="d-resto"><div class="edash">Aucun avis traité</div></div></div>
+      <div class="dpanel"><div class="dpanel-t">🕒 Derniers avis</div><div class="dpanel-s">Historique récent</div><div id="d-hist"><div class="edash">Aucun avis traité</div></div></div>
+    </div>
+    <button class="btn-mail" onclick="mailReport()">📧 Envoyer le rapport par email</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="ti"></span><span id="tm"></span></div>
+
+<script>
+const HL={montmartre:["Chawarma poulet","Mezzebowl à composer","Hommos","Fatouch Encore","Kafta","Falafel","Baklawa pistaches","Mezzebowl Perle d'Orient","Chiche taouk","Labné","Haloumi Sticks","Mezzebowl La Folie Douce"],demours:["Chawarma poulet","Hommos","Fatouch Encore","Kafta","Falafel","Baklawa pistaches","Chiche taouk","Labné","Haloumi Sticks","Caviar d'aubergines","Taboulé","Pita végétarienne"]};
+const LN={fr:"Français",en:"English",ar:"Arabe",es:"Español",it:"Italiano",de:"Deutsch",zh:"Chinois",ja:"Japonais"};
+let user=null,hist=JSON.parse(localStorage.getItem('mzv3')||'[]'),cur=null;
+
+function atab(t){document.querySelectorAll('.atab').forEach((el,i)=>el.classList.toggle('on',(i===0&&t==='login')||(i===1&&t==='signup')));document.getElementById('fl').style.display=t==='login'?'':'none';document.getElementById('fs').style.display=t==='signup'?'':'none';}
+function login(){const e=document.getElementById('le').value.trim();if(!e)return toast('⚠️','Entrez votre email');user={email:e,name:e.split('@')[0],weekly:document.getElementById('lw').checked};go();}
+function signup(){const n=document.getElementById('sn').value.trim(),e=document.getElementById('se').value.trim();if(!n||!e)return toast('⚠️','Remplissez tous les champs');user={email:e,name:n,weekly:document.getElementById('sw').checked};go();}
+function go(){document.getElementById('auth').style.display='none';document.getElementById('app').style.display='block';document.getElementById('un').textContent=user.name;kpis();if(user.weekly)toast('📬',`Rapport lundi activé → ${user.email}`);}
+function gp(p,btn){document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));document.querySelectorAll('.npill').forEach(el=>el.classList.remove('on'));document.getElementById('page-'+p).classList.add('on');btn.classList.add('on');if(p==='dash')dash();}
+
+async function gen(){
+  const review=document.getElementById('rv').value.trim();
+  if(!review)return toast('⚠️','Collez d\'abord un avis');
+  const lang=document.getElementById('rl').value,langN=LN[lang],orders=document.getElementById('ro').value||'?',resto=document.getElementById('rr').value;
+  const restoN=resto==='montmartre'?'Mezzencore Montmartre':'Mezzencore Demours';
+  const bowls=resto==='montmartre'?"Ce restaurant propose aussi les Mezzebowls (Perle d'Orient, La Folie Douce, Falafel Lovers, Boulette Power).":"Ce restaurant NE propose PAS de Mezzebowls, ne les mentionne jamais.";
+  const btn=document.getElementById('bgn');btn.disabled=true;document.getElementById('gtxt').style.display='none';document.getElementById('gload').style.display='';document.getElementById('re').style.display='flex';document.getElementById('rc').classList.remove('show');document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('on'));document.getElementById('vdisp').classList.remove('show');
+  const prompt=`Tu es le community manager du restaurant libanais "${restoN}".\nCONTEXTE : Commandes : ${orders} | Restaurant : ${restoN} | Langue : ${langN}\n${bowls}\nPRODUITS PHARES : ${HL[resto].join(', ')}\nAVIS : "${review}"\nINSTRUCTIONS :\n1. Ligne 1 : [SENTIMENT:POSITIF] ou [SENTIMENT:NEGATIF] ou [SENTIMENT:MITIGE]\n2. Réponse en ${langN} uniquement, humaine, max 160 mots\n3. Si commandes > 3 : mentionne la fidélité\n4. Signe : "L'équipe Mezzencore"\n5. Dernière ligne : [PRODUITS:produit1|produit2|produit3]`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":"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","anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    const data=await res.json();const raw=data.content.map(b=>b.text||'').join('');
+    const sm=raw.match(/\[SENTIMENT:(POSITIF|NEGATIF|MITIGE)\]/i),sentiment=sm?sm[1].toUpperCase():'MITIGE';
+    const pm=raw.match(/\[PRODUITS:([^\]]+)\]/),prods=pm?pm[1].split('|').map(s=>s.trim()):HL[resto].slice(0,3);
+    const rtext=raw.replace(/\[SENTIMENT:[^\]]+\]/gi,'').replace(/\[PRODUITS:[^\]]+\]/gi,'').trim();
+    document.getElementById('rtext').textContent=rtext;
+    const b=document.getElementById('rbadge');
+    if(sentiment==='POSITIF'){b.textContent='😊 Positif';b.className='badge bpos';}else if(sentiment==='NEGATIF'){b.textContent='😞 Négatif';b.className='badge bneg';}else{b.textContent='😐 Mitigé';b.className='badge bmix';}
+    document.getElementById('pchips').innerHTML=prods.map(p=>`<span class="pchip">🍽️ ${p}</span>`).join('');
+    document.getElementById('re').style.display='none';document.getElementById('rc').classList.add('show');
+    const entry={id:Date.now(),date:new Date().toLocaleDateString('fr-FR'),review:review.slice(0,130),response:rtext,sentiment,resto,restoN,lang,langN,orders,products:prods,voucher:0};
+    hist.unshift(entry);cur=entry;localStorage.setItem('mzv3',JSON.stringify(hist));kpis();toast('✅','Réponse générée !');
+  }catch(e){toast('❌','Erreur API');console.error(e);}
+  btn.disabled=false;document.getElementById('gtxt').style.display='';document.getElementById('gload').style.display='none';
+}
+
+function pickV(btn,amount){
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  const d=document.getElementById('vdisp');
+  if(amount>0){const code='MZ'+Math.random().toString(36).substring(2,6).toUpperCase()+Math.floor(Math.random()*10);document.getElementById('vamt').textContent=amount.toFixed(2)+' €';document.getElementById('vcode').textContent=code;d.classList.add('show');if(cur){cur.voucher=amount;cur.voucherCode=code;saveH();kpis();}toast('🎟️',`Bon de ${amount.toFixed(2)} € créé !`);}
+  else{d.classList.remove('show');if(cur){cur.voucher=0;saveH();}}
+}
+function copyR(){navigator.clipboard.writeText(document.getElementById('rtext').textContent).then(()=>toast('📋','Réponse copiée !'));}
+function dlR(){if(!cur)return;const v=cur.voucher>0?`\n\nBON : ${cur.voucher.toFixed(2)} € | Code : ${cur.voucherCode}`:'';const txt=`MEZZENCORE\nDate : ${cur.date} | ${cur.restoN} | ${cur.langN}${v}\n\nAVIS :\n${cur.review}\n\nRÉPONSE :\n${cur.response}\n\nPRODUITS : ${cur.products.join(' · ')}`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));a.download=`avis-${cur.date.replace(/\//g,'-')}.txt`;a.click();toast('⬇️','Téléchargé !');}
+function kpis(){const tot=hist.length,pos=hist.filter(h=>h.sentiment==='POSITIF').length,neg=hist.filter(h=>h.sentiment!=='POSITIF').length,bon=hist.filter(h=>h.voucher>0).length;['kt','dt'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=tot;});['kp','dp'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=pos;});['kn','dn'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=neg;});['kb','db2'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=bon;});const val=hist.reduce((a,h)=>a+(h.voucher||0),0);const dv=document.getElementById('dv');if(dv)dv.textContent=val.toFixed(2)+' €';}
+function dash(){kpis();const posH=hist.filter(h=>h.sentiment==='POSITIF'),negH=hist.filter(h=>h.sentiment!=='POSITIF');rPL('d-pp',pCnt(posH),'tp');rPL('d-pn',pCnt(negH),'tn');const mont=hist.filter(h=>h.resto==='montmartre').length,dem=hist.filter(h=>h.resto==='demours').length,max=Math.max(mont,dem,1),re=document.getElementById('d-resto');if(!hist.length){re.innerHTML='<div class="edash">Aucun avis traité</div>';}else{re.innerHTML=`<div class="brow"><div class="blabel"><span>📍 Montmartre</span><span>${mont}</span></div><div class="btrack"><div class="bfill" style="width:${(mont/max*100).toFixed(0)}%"></div></div></div><div class="brow"><div class="blabel"><span>📍 Demours</span><span>${dem}</span></div><div class="btrack"><div class="bfill bl" style="width:${(dem/max*100).toFixed(0)}%"></div></div></div>`;}const dh=document.getElementById('d-hist');if(!hist.length){dh.innerHTML='<div class="edash">Aucun avis traité</div>';}else{dh.innerHTML=hist.slice(0,5).map(h=>`<div class="hitem"><div class="hmeta"><span>${h.date}</span><span class="badge ${h.sentiment==='POSITIF'?'bpos':h.sentiment==='NEGATIF'?'bneg':'bmix'}" style="font-size:.66rem;padding:2px 7px">${h.sentiment}</span><span>${h.restoN.includes('Mont')?'Montmartre':'Demours'}</span>${h.voucher>0?`<span class="tg">🎟️${h.voucher.toFixed(2)}€</span>`:''}</div><div class="hexc">${h.review.slice(0,80)}…</div></div>`).join('');}}
+function pCnt(e){const c={};e.forEach(h=>(h.products||[]).forEach(p=>{c[p]=(c[p]||0)+1;}));return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,6);}
+function rPL(id,s,cls){const el=document.getElementById(id);if(!s.length){el.innerHTML='<div class="edash">Aucun avis traité</div>';return;}el.innerHTML=s.map(([n,c])=>`<div class="di"><span>${n}</span><span class="${cls}">${c}x</span></div>`).join('');}
+function mailReport(){if(!user)return;const tot=hist.length,pos=hist.filter(h=>h.sentiment==='POSITIF').length,neg=hist.filter(h=>h.sentiment!=='POSITIF').length,bon=hist.filter(h=>h.voucher>0).length,val=hist.reduce((a,h)=>a+(h.voucher||0),0),mont=hist.filter(h=>h.resto==='montmartre').length,dem=hist.filter(h=>h.resto==='demours').length;const subj=`Rapport Mezzencore — ${new Date().toLocaleDateString('fr-FR')}`;const body=`Bonjour ${user.name},\n\nRapport Mezzencore IA :\n\n📊 RÉSUMÉ\n• Avis traités : ${tot}\n• Positifs : ${pos}\n• Négatifs/Mitigés : ${neg}\n\n🎟️ BONS\n• Donnés : ${bon} | Valeur : ${val.toFixed(2)} €\n\n📍 PAR RESTAURANT\n• Montmartre : ${mont}\n• Demours : ${dem}\n\n— Mezzencore IA`;window.open(`mailto:${user.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`,'_blank');toast('📧','Rapport ouvert !');}
+function saveH(){const idx=hist.findIndex(h=>h.id===cur.id);if(idx!==-1)hist[idx]=cur;localStorage.setItem('mzv3',JSON.stringify(hist));}
+function toast(icon,msg){const t=document.getElementById('toast');document.getElementById('ti').textContent=icon;document.getElementById('tm').textContent=msg;t.classList.add('show');clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),3200);}
+</script>
+</body>
+</html>
