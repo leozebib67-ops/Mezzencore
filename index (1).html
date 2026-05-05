@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -248,7 +249,6 @@ textarea::placeholder{color:var(--muted)}
 <script>
 const HL={montmartre:["Chawarma poulet","Mezzebowl à composer","Hommos","Fatouch Encore","Kafta","Falafel","Baklawa pistaches","Mezzebowl Perle d'Orient","Chiche taouk","Labné","Haloumi Sticks","Mezzebowl La Folie Douce"],demours:["Chawarma poulet","Hommos","Fatouch Encore","Kafta","Falafel","Baklawa pistaches","Chiche taouk","Labné","Haloumi Sticks","Caviar d'aubergines","Taboulé","Pita végétarienne"]};
 const LN={fr:"Français",en:"English",ar:"Arabe",es:"Español",it:"Italiano",de:"Deutsch",zh:"Chinois",ja:"Japonais"};
-const API_KEY="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";
 function getU(){return JSON.parse(localStorage.getItem('mz_users')||'{}');}
 function setU(u){localStorage.setItem('mz_users',JSON.stringify(u));}
 function getH(e){return JSON.parse(localStorage.getItem('mz_h_'+e)||'[]');}
@@ -259,7 +259,42 @@ function login(){const e=document.getElementById('le').value.trim(),p=document.g
 function signup(){const n=document.getElementById('sn').value.trim(),e=document.getElementById('se').value.trim(),p=document.getElementById('sp').value;if(!n||!e||!p)return toast('⚠️','Remplissez tous les champs');const users=getU();if(users[e]){document.getElementById('serr').style.display='block';return;}users[e]={name:n,password:p};setU(users);user={email:e,name:n,weekly:document.getElementById('sw').checked};hist=[];go();}
 function go(){document.getElementById('auth').style.display='none';document.getElementById('app').style.display='block';document.getElementById('un').textContent=user.name;kpis();if(user.weekly)toast('📬',`Rapport lundi activé → ${user.email}`);}
 function gp(p,btn){document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));document.querySelectorAll('.npill').forEach(el=>el.classList.remove('on'));document.getElementById('page-'+p).classList.add('on');btn.classList.add('on');if(p==='dash')dash();}
-async function gen(){const review=document.getElementById('rv').value.trim();if(!review)return toast('⚠️','Collez d\'abord un avis');const lang=document.getElementById('rl2').value,langN=LN[lang];const orders=document.getElementById('ro').value||'?';const resto=document.getElementById('rr').value;const restoN=resto==='montmartre'?'Mezzencore Montmartre':'Mezzencore Demours';const bowls=resto==='montmartre'?"Ce restaurant propose aussi les Mezzebowls.":"Ce restaurant NE propose PAS de Mezzebowls.";const btn=document.getElementById('bgn');btn.disabled=true;document.getElementById('gtxt').style.display='none';document.getElementById('gload').style.display='';document.getElementById('re').style.display='flex';document.getElementById('rc').classList.remove('show');document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('on'));document.getElementById('vd').classList.remove('show');const prompt=`Tu es le community manager du restaurant "${restoN}".\nCommandes : ${orders} | Langue : ${langN}\n${bowls}\nPRODUITS : ${HL[resto].join(', ')}\nAVIS : "${review}"\nINSTRUCTIONS :\n1. [SENTIMENT:POSITIF/NEGATIF/MITIGE]\n2. Réponse en ${langN}, humaine, max 160 mots, signe "L'équipe Mezzencore"\n3. [PRODUITS:p1|p2|p3]`;try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});const data=await res.json();const raw=data.content.map(b=>b.text||'').join('');const sm=raw.match(/\[SENTIMENT:(POSITIF|NEGATIF|MITIGE)\]/i),sentiment=sm?sm[1].toUpperCase():'MITIGE';const pm=raw.match(/\[PRODUITS:([^\]]+)\]/),prods=pm?pm[1].split('|').map(s=>s.trim()):HL[resto].slice(0,3);const rtext=raw.replace(/\[SENTIMENT:[^\]]+\]/gi,'').replace(/\[PRODUITS:[^\]]+\]/gi,'').trim();document.getElementById('rtxt').textContent=rtext;const b=document.getElementById('rbadge');if(sentiment==='POSITIF'){b.textContent='😊 Positif';b.className='badge bpos';}else if(sentiment==='NEGATIF'){b.textContent='😞 Négatif';b.className='badge bneg';}else{b.textContent='😐 Mitigé';b.className='badge bmix';}document.getElementById('pch').innerHTML=prods.map(p=>`<span class="pchip">🍽️ ${p}</span>`).join('');document.getElementById('re').style.display='none';document.getElementById('rc').classList.add('show');const entry={id:Date.now(),date:new Date().toLocaleDateString('fr-FR'),review:review.slice(0,130),response:rtext,sentiment,resto,restoN,lang,langN,orders,products:prods,voucher:0};hist.unshift(entry);cur=entry;setH(user.email,hist);kpis();toast('✅','Réponse générée !');}catch(e){toast('❌','Erreur : '+e.message);}btn.disabled=false;document.getElementById('gtxt').style.display='';document.getElementById('gload').style.display='none';}
+async function gen(){
+  const review=document.getElementById('rv').value.trim();
+  if(!review)return toast('⚠️','Collez d\'abord un avis');
+  const lang=document.getElementById('rl2').value,langN=LN[lang];
+  const orders=document.getElementById('ro').value||'?';
+  const resto=document.getElementById('rr').value;
+  const restoN=resto==='montmartre'?'Mezzencore Montmartre':'Mezzencore Demours';
+  const bowls=resto==='montmartre'?"Ce restaurant propose aussi les Mezzebowls.":"Ce restaurant NE propose PAS de Mezzebowls.";
+  const btn=document.getElementById('bgn');
+  btn.disabled=true;document.getElementById('gtxt').style.display='none';document.getElementById('gload').style.display='';
+  document.getElementById('re').style.display='flex';document.getElementById('rc').classList.remove('show');
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('on'));document.getElementById('vd').classList.remove('show');
+  const prompt=`Tu es le community manager du restaurant "${restoN}".\nCommandes : ${orders} | Langue : ${langN}\n${bowls}\nPRODUITS : ${HL[resto].join(', ')}\nAVIS : "${review}"\nINSTRUCTIONS :\n1. [SENTIMENT:POSITIF/NEGATIF/MITIGE]\n2. Réponse en ${langN}, humaine, max 160 mots, signe "L'équipe Mezzencore"\n3. [PRODUITS:p1|p2|p3]`;
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const raw=data.content.map(b=>b.text||'').join('');
+    const sm=raw.match(/\[SENTIMENT:(POSITIF|NEGATIF|MITIGE)\]/i),sentiment=sm?sm[1].toUpperCase():'MITIGE';
+    const pm=raw.match(/\[PRODUITS:([^\]]+)\]/),prods=pm?pm[1].split('|').map(s=>s.trim()):HL[resto].slice(0,3);
+    const rtext=raw.replace(/\[SENTIMENT:[^\]]+\]/gi,'').replace(/\[PRODUITS:[^\]]+\]/gi,'').trim();
+    document.getElementById('rtxt').textContent=rtext;
+    const b=document.getElementById('rbadge');
+    if(sentiment==='POSITIF'){b.textContent='😊 Positif';b.className='badge bpos';}
+    else if(sentiment==='NEGATIF'){b.textContent='😞 Négatif';b.className='badge bneg';}
+    else{b.textContent='😐 Mitigé';b.className='badge bmix';}
+    document.getElementById('pch').innerHTML=prods.map(p=>`<span class="pchip">🍽️ ${p}</span>`).join('');
+    document.getElementById('re').style.display='none';document.getElementById('rc').classList.add('show');
+    const entry={id:Date.now(),date:new Date().toLocaleDateString('fr-FR'),review:review.slice(0,130),response:rtext,sentiment,resto,restoN,lang,langN,orders,products:prods,voucher:0};
+    hist.unshift(entry);cur=entry;setH(user.email,hist);kpis();toast('✅','Réponse générée !');
+  }catch(e){toast('❌','Erreur : '+e.message);}
+  btn.disabled=false;document.getElementById('gtxt').style.display='';document.getElementById('gload').style.display='none';
+}
 function pickV(btn,amount){document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const d=document.getElementById('vd');if(amount>0){const code='MZ'+Math.random().toString(36).substring(2,6).toUpperCase()+Math.floor(Math.random()*10);document.getElementById('vamt').textContent=amount.toFixed(2)+' €';document.getElementById('vcode').textContent=code;d.classList.add('show');if(cur){cur.voucher=amount;cur.voucherCode=code;const i=hist.findIndex(h=>h.id===cur.id);if(i!==-1)hist[i]=cur;setH(user.email,hist);kpis();}toast('🎟️',`Bon de ${amount.toFixed(2)} € créé !`);}else{d.classList.remove('show');}}
 function copyR(){navigator.clipboard.writeText(document.getElementById('rtxt').textContent).then(()=>toast('📋','Copié !'));}
 function dlR(){if(!cur)return;const v=cur.voucher>0?`\nBON : ${cur.voucher.toFixed(2)} € | ${cur.voucherCode}`:'';const t=`MEZZENCORE — ${cur.date}\n${cur.restoN} | ${cur.langN}${v}\n\nAVIS:\n${cur.review}\n\nRÉPONSE:\n${cur.response}`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain;charset=utf-8'}));a.download=`avis-${cur.date.replace(/\//g,'-')}.txt`;a.click();toast('⬇️','Téléchargé !');}
